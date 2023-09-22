@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Translate to English</title>
+</head>
+
+<body>
+    <h1>Voice Translate to English</h1>
+
+    <!-- Create a form for voice input -->
+    <form id="voiceForm">
+        <label for="spokenText">Speak:</label>
+        <input type="text" id="spokenText" placeholder="Speak into the microphone">
+        <button type="button" id="startButton" onclick="startListening()">Start Recording</button>
+        <button type="button" id="stopButton" onclick="stopListening()" disabled>Stop Recording</button>
+    </form>
+
+    <!-- Display translated text -->
+    <div id="translationResult">
+        <p>Translated Text: <span id="translatedText"></span></p>
+    </div>
+
+    <script>
+        // Initialize the SpeechRecognition object
+        const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+        recognition.lang = 'en-US'; // Set the recognition language to English
+
+        // Handle recognition results
+        recognition.onresult = function (event) {
+            const spokenText = event.results[0][0].transcript;
+            document.getElementById('spokenText').value = spokenText;
+            translateText(spokenText);
+        };
+
+        // Handle errors
+        recognition.onerror = function (event) {
+            console.error('Speech recognition error:', event.error);
+        };
+
+        // Start listening when the Start button is clicked
+        function startListening() {
+            recognition.start();
+            document.getElementById('startButton').setAttribute('disabled', 'true');
+            document.getElementById('stopButton').removeAttribute('disabled');
+        }
+
+        // Stop listening when the Stop button is clicked
+        function stopListening() {
+            recognition.stop();
+            document.getElementById('startButton').removeAttribute('disabled');
+            document.getElementById('stopButton').setAttribute('disabled', 'true');
+        }
+
+        // Translate text using a translation API (you need to implement this part)
+        async function translateText(text) {
+            // You would typically use a translation API like Google Translate here.
+            // For this example, we'll just display the same text.
+            var inputLanguage="hi"
+            var outputLanguage="en"
+            var translateScript=""
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${inputLanguage}&tl=${outputLanguage}&dt=t&q=${encodeURI(
+    text
+  )}`;
+            await fetch(url)
+                .then((response) => response.json())
+                .then((json) => {
+                    console.log(json);
+                    console.log(json[0].map((item) => item[0]).join(""))
+                    translateScript=json[0].map((item) => item[0]).join("")
+                    console.log(`Translated Script ${translateScript}` )
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+
+
+                inputLanguage="en"
+                outputLanguage="hi"
+
+                var final_text=""
+                const url1 = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${inputLanguage}&tl=${outputLanguage}&dt=t&q=${encodeURI(
+    translateScript
+  )}`;
+            await fetch(url1)
+                .then((response) => response.json())
+                .then((json) => {
+                    console.log(json);
+                    console.log(json[0].map((item) => item[0]).join(""))
+                   final_text=json[0].map((item) => item[0]).join("")
+                   // console.log(`Translated Script ${translateScript}` )
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+
+            document.getElementById('translatedText').textContent = final_text;
+
+
+        }
+    </script>
+</body>
+
+</html>
